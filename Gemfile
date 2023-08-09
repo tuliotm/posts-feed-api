@@ -36,9 +36,21 @@ gem "bootsnap", require: false
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 # gem "rack-cors"
 
+# Generate beautiful API documentation, including a UI to explore and test operations,
+# directly from your rspec integration tests.
+gem 'rswag'
+
+# ActiveModel::Serializers allows you to generate your JSON in an object-oriented and convention-driven manner.
+gem "active_model_serializers"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri mingw x64_mingw ]
+  gem 'rspec-rails', '~> 6.0.0'
+  gem 'factory_bot_rails'
+  gem 'ffaker'
+  gem 'pry-rails'
+  gem 'rubocop-rails', require: false
 end
 
 group :development do
@@ -46,3 +58,8 @@ group :development do
   # gem "spring"
 end
 
+group :test do
+  gem 'simplecov', require: false
+  gem "shoulda-matchers", "~> 5.3"
+  gem "database_cleaner-active_record", "~> 2.1"
+end
