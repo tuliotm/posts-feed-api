@@ -4,11 +4,12 @@ class UsersController < ApplicationController
   # POST /users
   def create
     @user = User.new(user_params)
-
+  
     if @user.save
-      render json: @user, status: :created, location: @user
+      token = encode_token({user_id: @user.id})
+      render json: {user: @user.as_json.merge(token: token)}, status: :created
     else
-      render json: @user.errors, status: :unprocessable_entity
+      render json: {error: 'Usuário ou senha inválidos'}, status: :unprocessable_entity
     end
   end
 
@@ -19,6 +20,23 @@ class UsersController < ApplicationController
     else
       render json: @user.errors, status: :unprocessable_entity
     end
+  end
+
+  # POST /login
+  def login
+    @user = User.find_by(email: user_params[:email])
+
+    if @user && @user.authenticate(user_params[:password])
+      token = encode_token({ user_id: @user.id })
+      render json: { user: @user, token: token }, status: :ok
+    else
+      render json: { error: 'Usuário ou senha inválidos' }, status: :unprocessable_entity
+    end
+  end
+
+  # DELETE /logout
+  def logout
+    head :no_content
   end
 
   private

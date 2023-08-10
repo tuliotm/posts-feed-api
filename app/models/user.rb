@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  has_secure_password
 
   #== VALIDATIONS ========================================
   validates :email, uniqueness: { case_sensitive: false }, length: { in: 3..255 }, presence: true
