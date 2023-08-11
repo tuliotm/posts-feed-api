@@ -6,7 +6,7 @@ This project aims to develop a publication feed using the Ruby on Rails framewor
 
 Make sure you have the following versions installed:
 
-- Ruby: 3.0.5p211
+- Ruby: 3.0.5
 - Rails: 7.0.6
 - Bundler: 2.2.33
 

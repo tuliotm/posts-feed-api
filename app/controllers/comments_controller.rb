@@ -1,16 +1,18 @@
+# frozen_string_literal: true
+
 class CommentsController < ApplicationController
-  before_action :set_comment, only: %i[ show update destroy ]
+  before_action :set_comment, only: %i[show update destroy]
 
   # GET /comments
   def index
     @comments = Comment.all
 
-    render json: {comments: @comments}
+    render json: { comments: @comments }
   end
 
   # GET /comments/1
   def show
-    render json: {comment: @comment}
+    render json: { comment: @comment }
   end
 
   # POST /comments
@@ -18,7 +20,7 @@ class CommentsController < ApplicationController
     @comment = Comment.new(comment_params)
 
     if @comment.save
-      render json: {comment: @comment}, status: :created, location: @comment
+      render json: { comment: @comment }, status: :created, location: @comment
     else
       render json: @comment.errors, status: :unprocessable_entity
     end
@@ -27,7 +29,7 @@ class CommentsController < ApplicationController
   # PATCH/PUT /comments/1
   def update
     if @comment.update(comment_params)
-      render json: {comment: @comment}
+      render json: { comment: @comment }
     else
       render json: @comment.errors, status: :unprocessable_entity
     end
@@ -39,13 +41,14 @@ class CommentsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_comment
-      @comment = Comment.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def comment_params
-      params.require(:comment).permit(:comment, :file, :user_id, :commentable_id, :commentable_type)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_comment
+    @comment = Comment.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def comment_params
+    params.require(:comment).permit(:comment, :file, :user_id, :commentable_id, :commentable_type)
+  end
 end
