@@ -44,9 +44,8 @@ RSpec.describe "/users", type: :request do
     context "with valid parameters" do
       it "updates the requested user" do
         user = create(:user)
-        new_attributes = attributes_for(:user)
         patch user_url(user),
-              params: { user: new_attributes }, headers: valid_headers, as: :json
+              params: { user: attributes_for(:user) }, headers: valid_headers, as: :json
         user.reload
       end
 
