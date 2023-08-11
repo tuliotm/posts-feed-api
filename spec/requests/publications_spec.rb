@@ -8,7 +8,6 @@ RSpec.describe "/publications", type: :request do
 
   describe "GET /index" do
     it "renders a successful response" do
-      user = create(:user)
       publication = create(:publication)
       get publications_url, headers: valid_headers, as: :json
       expect(response).to be_successful
@@ -17,7 +16,6 @@ RSpec.describe "/publications", type: :request do
 
   describe "GET /show" do
     it "renders a successful response" do
-      user = create(:user)
       publication = create(:publication)
       get publication_url(publication), as: :json
       expect(response).to be_successful
@@ -27,17 +25,17 @@ RSpec.describe "/publications", type: :request do
   describe "POST /create" do
     context "with valid parameters" do
       it "creates a new Publication" do
-        user = create(:user)
+        publication = create(:publication)
         expect {
           post publications_url,
-               params: { publication: attributes_for(:publication).merge(user_id: user.id) }, headers: valid_headers, as: :json
+               params: { publication: publication }, headers: valid_headers, as: :json
         }.to change(Publication, :count).by(1)
       end
 
       it "renders a JSON response with the new publication" do
-        user = create(:user)
+        publication = create(:publication)
         post publications_url,
-             params: { publication: attributes_for(:publication).merge(user_id: user.id) }, headers: valid_headers, as: :json
+             params: { publication: publication }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:created)
         expect(response.content_type).to match(a_string_including("application/json"))
       end
