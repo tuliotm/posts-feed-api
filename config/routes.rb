@@ -10,4 +10,8 @@ Rails.application.routes.draw do
       delete 'logout'
     end
   end
+  
+  resources :comments
+  resources :publications
+  
 end
