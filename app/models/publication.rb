@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Publication < ApplicationRecord
   #== VALIDATIONS ========================================
   validates :title, presence: true
