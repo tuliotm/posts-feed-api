@@ -23,6 +23,7 @@ class CommentsController < ApplicationController
   # POST /comments
   def create
     @comment = Comment.new(comment_params)
+    @comment.user = @user
 
     if @comment.save
       render json: { comment: @comment }, status: :created, location: @comment
@@ -33,16 +34,24 @@ class CommentsController < ApplicationController
 
   # PATCH/PUT /comments/1
   def update
-    if @comment.update(comment_params)
-      render json: { comment: @comment }
+    if @comment.user == @user
+      if @comment.update(comment_params)
+        render json: { comment: @comment }
+      else
+        render json: @comment.errors, status: :unprocessable_entity
+      end
     else
-      render json: @comment.errors, status: :unprocessable_entity
+      render json: { error: 'Você não tem permissão para editar este comentário' }, status: :forbidden
     end
   end
 
   # DELETE /comments/1
   def destroy
-    @comment.destroy
+    if @comment.user == @user
+      @comment.destroy
+    else
+      render json: { error: 'Você não tem permissão para excluir este comentário' }, status: :forbidden
+    end
   end
 
   private
@@ -54,6 +63,6 @@ class CommentsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def comment_params
-    params.require(:comment).permit(:comment, :file, :user_id, :commentable_id, :commentable_type)
+    params.require(:comment).permit(:comment, :file, :commentable_id, :commentable_type)
   end
 end
