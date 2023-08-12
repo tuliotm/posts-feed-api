@@ -11,6 +11,11 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :comments
-  resources :publications
+  resources :comments do
+    get 'page/:page', action: :index, on: :collection
+  end
+
+  resources :publications do
+    get 'page/:page', action: :index, on: :collection
+  end
 end
