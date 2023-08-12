@@ -23,6 +23,7 @@ class PublicationsController < ApplicationController
   # POST /publications
   def create
     @publication = Publication.new(publication_params)
+    @publication.user = @user
 
     if @publication.save
       render json: { publication: @publication }, status: :created, location: @publication
@@ -33,16 +34,24 @@ class PublicationsController < ApplicationController
 
   # PATCH/PUT /publications/1
   def update
-    if @publication.update(publication_params)
-      render json: { publication: @publication }
+    if @publication.user == @user
+      if @publication.update(publication_params)
+        render json: { publication: @publication }
+      else
+        render json: @publication.errors, status: :unprocessable_entity
+      end
     else
-      render json: @publication.errors, status: :unprocessable_entity
+      render json: { error: 'Você não tem permissão para editar esta publicação' }, status: :forbidden
     end
   end
 
   # DELETE /publications/1
   def destroy
-    @publication.destroy
+    if @publication.user == @user
+      @publication.destroy
+    else
+      render json: { error: 'Você não tem permissão para excluir esta publicação' }, status: :forbidden
+    end
   end
 
   private
@@ -54,6 +63,6 @@ class PublicationsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def publication_params
-    params.require(:publication).permit(:title, :description, :files, :user_id)
+    params.require(:publication).permit(:title, :description, :files)
   end
 end
