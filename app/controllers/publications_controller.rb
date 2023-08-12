@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class PublicationsController < ApplicationController
+  before_action :authorize
   before_action :set_publication, only: %i[show update destroy]
 
   # GET /publications
