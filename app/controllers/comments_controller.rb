@@ -6,7 +6,11 @@ class CommentsController < ApplicationController
 
   # GET /comments
   def index
-    @comments = Comment.all
+    if params[:page].present? && params[:per_page].present?
+      @comments = Comment.page(params[:page]).per(params[:per_page])
+    else
+      @comments = Comment.all
+    end
 
     render json: { comments: @comments }
   end

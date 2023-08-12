@@ -6,7 +6,11 @@ class PublicationsController < ApplicationController
 
   # GET /publications
   def index
-    @publications = Publication.all
+    if params[:page].present? && params[:per_page].present?
+      @publications = Publication.page(params[:page]).per(params[:per_page])
+    else
+      @publications = Publication.all
+    end
 
     render json: { publications: @publications }
   end
