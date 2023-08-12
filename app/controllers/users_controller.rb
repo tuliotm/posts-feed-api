@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class UsersController < ApplicationController
+  before_action :authorize, only: %i[update logout]
   before_action :set_user, only: %i[update]
 
   # POST /users
@@ -18,7 +19,7 @@ class UsersController < ApplicationController
   # PATCH/PUT /users/1
   def update
     if @user.update(user_params)
-      render json: @user
+      render json: { user: @user }
     else
       render json: @user.errors, status: :unprocessable_entity
     end
