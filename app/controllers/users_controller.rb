@@ -18,7 +18,7 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1
   def update
-    if authorized_user
+    if authorized_update_user
       if @user.update(user_params)
         render json: { user: @user }
       else
