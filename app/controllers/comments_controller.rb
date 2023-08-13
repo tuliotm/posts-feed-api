@@ -12,12 +12,12 @@ class CommentsController < ApplicationController
       @comments = Comment.all
     end
 
-    render json: { comments: @comments }
+    render json: { comments: ActiveModel::Serializer::CollectionSerializer.new(@comments, each_serializer: CommentSerializer) }
   end
 
   # GET /comments/1
   def show
-    render json: { comment: @comment }
+    render json: { comment: CommentSerializer.new(@comment) }
   end
 
   # POST /comments
@@ -26,7 +26,7 @@ class CommentsController < ApplicationController
     @comment.user = @user
 
     if @comment.save
-      render json: { comment: @comment }, status: :created, location: @comment
+      render json: { comment: CommentSerializer.new(@comment) }, status: :created, location: @comment
     else
       render json: @comment.errors, status: :unprocessable_entity
     end
@@ -36,7 +36,7 @@ class CommentsController < ApplicationController
   def update
     if @comment.user == @user
       if @comment.update(comment_params)
-        render json: { comment: @comment }
+        render json: { comment: CommentSerializer.new(@comment) }
       else
         render json: @comment.errors, status: :unprocessable_entity
       end
@@ -63,6 +63,6 @@ class CommentsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def comment_params
-    params.require(:comment).permit(:comment, :file, :commentable_id, :commentable_type)
+    params.require(:comment).permit(:comment, :commentable_id, :commentable_type, :file)
   end
 end

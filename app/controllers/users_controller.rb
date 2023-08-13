@@ -10,7 +10,7 @@ class UsersController < ApplicationController
 
     if @user.save
       token = encode_token({ user_id: @user.id })
-      render json: { user: @user.as_json.merge(token: token) }, status: :created
+      render json: { user: UserSerializer.new(@user), token: token }, status: :created
     else
       render json: @user.errors, status: :unprocessable_entity
     end
@@ -20,7 +20,7 @@ class UsersController < ApplicationController
   def update
     if authorized_update_user
       if @user.update(user_params)
-        render json: { user: @user }
+        render json: { user: UserSerializer.new(@user) }
       else
         render json: @user.errors, status: :unprocessable_entity
       end
@@ -36,7 +36,7 @@ class UsersController < ApplicationController
 
     if @user&.authenticate(user_params[:password])
       token = encode_token({ user_id: @user.id })
-      render json: { user: @user, token: token }, status: :ok
+      render json: { user: UserSerializer.new(@user), token: token }, status: :ok
     else
       render json: { error: 'Usuário ou senha inválidos' }, status: :unprocessable_entity
     end
