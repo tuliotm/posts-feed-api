@@ -50,6 +50,21 @@ RSpec.describe "/publications", type: :request do
         }.to change(Publication, :count).by(1)
       end
 
+      it 'renders file attributes when file is attached' do
+        publication = create(:publication)
+  
+        serialized_publication = PublicationSerializer.new(publication).serializable_hash
+        serialized_file = serialized_publication[:file]
+  
+        expect(serialized_file).to eq(
+          {
+            filename: 'empty_file.txt',
+            content_type: 'text/plain',
+            byte_size: 0
+          }
+        )
+      end
+
       it "renders a JSON response with the new publication" do
         publication = create(:publication)
         token = JWT.encode({ user_id: publication.user_id }, 'secret')
