@@ -11,4 +11,8 @@ class User < ApplicationRecord
   #== ASSOCIATIONS =======================================
   has_many :comments
   has_many :publications
+  has_one_attached :profile_photo
+  validates :profile_photo,
+    content_type: %i[png jpg jpeg],
+    size: { less_than: 5.megabytes }
 end

@@ -12,13 +12,13 @@ class PublicationsController < ApplicationController
       @publications = Publication.all
     end
 
-    render json: { publications: @publications }
+    render json: { publications: ActiveModel::Serializer::CollectionSerializer.new(@publications, each_serializer: PublicationSerializer) }
   end
 
   # GET /publications/1
   def show
-    render json: { publication: @publication }
-  end
+    render json: { publication: PublicationSerializer.new(@publication) }
+  end  
 
   # POST /publications
   def create
@@ -26,7 +26,7 @@ class PublicationsController < ApplicationController
     @publication.user = @user
 
     if @publication.save
-      render json: { publication: @publication }, status: :created, location: @publication
+      render json: { publication: PublicationSerializer.new(@publication) }, status: :created, location: @publication
     else
       render json: @publication.errors, status: :unprocessable_entity
     end
@@ -36,7 +36,7 @@ class PublicationsController < ApplicationController
   def update
     if @publication.user == @user
       if @publication.update(publication_params)
-        render json: { publication: @publication }
+        render json: { publication: PublicationSerializer.new(@publication) }
       else
         render json: @publication.errors, status: :unprocessable_entity
       end
@@ -63,6 +63,6 @@ class PublicationsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def publication_params
-    params.require(:publication).permit(:title, :description, :files)
+    params.require(:publication).permit(:title, :description, :file)
   end
 end
