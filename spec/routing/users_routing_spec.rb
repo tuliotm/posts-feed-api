@@ -15,5 +15,13 @@ RSpec.describe UsersController, type: :routing do
     it 'routes to #update via PATCH' do
       expect(patch: '/users/1').to route_to('users#update', id: '1')
     end
+
+    it 'routes to #login via POST' do
+      expect(post: '/users/login').to route_to('users#login')
+    end
+
+    it 'routes to #logout via DELETE' do
+      expect(delete: '/users/logout').to route_to('users#logout')
+    end
   end
 end

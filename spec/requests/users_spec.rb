@@ -53,8 +53,10 @@ RSpec.describe '/users', type: :request do
 
       it 'renders a JSON response with the user' do
         user = create(:user)
+        jwt_payload = { user_id: user.id }
+        jwt_token = JWT.encode(jwt_payload, 'secret', 'HS256')
         patch user_url(user),
-              params: { user: attributes_for(:user) }, headers: valid_headers, as: :json
+              params: { user: attributes_for(:user) }, headers: valid_headers.merge('Authorization' => "Bearer #{jwt_token}"), as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
@@ -63,11 +65,55 @@ RSpec.describe '/users', type: :request do
     context 'with invalid parameters' do
       it 'renders a JSON response with errors for the user' do
         user = create(:user)
+        jwt_payload = { user_id: user.id }
+        jwt_token = JWT.encode(jwt_payload, 'secret', 'HS256')
         patch user_url(user),
               params: { user: attributes_for(:user, email: '') }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
       end
+    end
+  end
+
+  describe 'POST /login' do
+    context 'with valid parameters' do
+      it 'logs in the user' do
+        user = create(:user)
+      
+        post '/users/login',
+             params: { user: { email: user.email, password: user.password } }, headers: valid_headers, as: :json
+      
+        expect(response).to have_http_status(200)
+      end
+
+      it 'renders a JSON response for user login' do
+        user = create(:user)
+
+        post '/users/login',
+             params: { user: { email: user.email, password: user.password } }, headers: valid_headers, as: :json
+
+        expect(response).to have_http_status(200)
+        expect(response.content_type).to match(a_string_including('application/json'))
+        expect(response.body).to include(user.email)
+      end      
+    end
+
+    context 'with invalid parameters' do
+      it 'renders a JSON response with login errors' do
+        post '/users/login',
+             params: { user: { email: 'invalid_email', password: 'invalid_password' } }, headers: valid_headers, as: :json
+  
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.body).to include('Usuário ou senha inválidos')
+      end
+    end    
+  end
+
+  describe 'DELETE /logout' do
+    it 'logs out the user' do
+      delete '/users/logout', headers: valid_headers, as: :json
+
+      expect(response).to have_http_status(:no_content)
     end
   end
 end

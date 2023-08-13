@@ -5,6 +5,13 @@ FactoryBot.define do
     email { FFaker::Internet.email }
     name { FFaker::Name.name }
     password { FFaker::Internet.password }
-    profile_photo { FFaker::Image.url }
+
+    transient do
+      jwt_token { nil }
+    end
+
+    after(:build) do |user, evaluator|
+      user.define_singleton_method(:jwt_token) { evaluator.jwt_token }
+    end
   end
 end

@@ -9,15 +9,28 @@ RSpec.describe "/comments", type: :request do
   describe "GET /index" do
     it "renders a successful response" do
       comment = create(:comment)
-      get comments_url, headers: valid_headers, as: :json
+      token = JWT.encode({ user_id: comment.user_id }, 'secret')
+      get comments_url, headers: { "Authorization" => token }, as: :json
       expect(response).to be_successful
+    end
+
+    it "renders a successful response with a valid JWT token and pagination" do
+      comment = create(:comment)
+      token = JWT.encode({ user_id: comment.user_id }, 'secret')
+
+      get comments_url(page: 1, per_page: 10), headers: { "Authorization" => "Bearer #{token}" }, as: :json
+
+      expect(response).to be_successful
+
+      expect(JSON.parse(response.body)).to have_key("comments")
     end
   end
 
   describe "GET /show" do
     it "renders a successful response" do
       comment = create(:comment)
-      get comment_url(comment), as: :json
+      token = JWT.encode({ user_id: comment.user_id }, 'secret')
+      get comment_url(comment), headers: { "Authorization" => token }, as: :json
       expect(response).to be_successful
     end
   end
@@ -26,16 +39,18 @@ RSpec.describe "/comments", type: :request do
     context "with valid parameters" do
       it "creates a new Comment" do
         comment = create(:comment)
+        token = JWT.encode({ user_id: comment.user_id }, 'secret')
         expect {
           post comments_url,
-               params: { comment: comment }, headers: valid_headers, as: :json
+               params: { comment: comment }, headers: { "Authorization" => token }, as: :json
         }.to change(Comment, :count).by(1)
       end
 
       it "renders a JSON response with the new comment" do
         comment = create(:comment)
+        token = JWT.encode({ user_id: comment.user_id }, 'secret')
         post comments_url,
-             params: { comment: comment }, headers: valid_headers, as: :json
+             params: { comment: comment }, headers: { "Authorization" => token }, as: :json
         expect(response).to have_http_status(:created)
         expect(response.content_type).to match(a_string_including("application/json"))
       end
@@ -45,13 +60,15 @@ RSpec.describe "/comments", type: :request do
       it "does not create a new Comment" do
         expect {
           post comments_url,
-               params: { comment: attributes_for(:publication) }, as: :json
+               params: { comment: attributes_for(:comment) }, as: :json
         }.to change(Comment, :count).by(0)
       end
 
       it "renders a JSON response with errors for the new comment" do
+        publication = create(:publication)
+        token = JWT.encode({ user_id: publication.user_id }, 'secret')
         post comments_url,
-             params: { comment: attributes_for(:publication) }, headers: valid_headers, as: :json
+             params: { comment: attributes_for(:publication) }, headers: { "Authorization" => token }, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including("application/json"))
       end
@@ -69,8 +86,9 @@ RSpec.describe "/comments", type: :request do
 
       it "renders a JSON response with the comment" do
         comment = create(:comment)
+        token = JWT.encode({ user_id: comment.user_id }, 'secret')
         patch comment_url(comment),
-              params: { comment: attributes_for(:comment) }, headers: valid_headers, as: :json
+              params: { comment: attributes_for(:comment) }, headers: { "Authorization" => token }, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including("application/json"))
       end
@@ -79,10 +97,22 @@ RSpec.describe "/comments", type: :request do
     context "with invalid parameters" do
       it "renders a JSON response with errors for the comment" do
         comment = create(:comment)
+        token = JWT.encode({ user_id: comment.user_id }, 'secret')
         patch comment_url(comment),
-              params: { comment: attributes_for(:comment, commentable_type: "") }, headers: valid_headers, as: :json
+              params: { comment: attributes_for(:comment, commentable_type: "") }, headers: { "Authorization" => token }, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including("application/json"))
+      end
+
+      it "does not authorized to update a Comment" do
+        comment = create(:comment)
+        token = JWT.encode({ user_id: comment.user_id }, 'secret')
+        antoher_user = create(:user)
+        another_token = JWT.encode({ user_id: antoher_user.id }, 'secret')
+
+        patch comment_url(comment),
+             params: { comment: attributes_for(:comment) }, headers: { "Authorization" => another_token }, as: :json
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end
@@ -90,9 +120,23 @@ RSpec.describe "/comments", type: :request do
   describe "DELETE /destroy" do
     it "destroys the requested comment" do
       comment = create(:comment)
+      token = JWT.encode({ user_id: comment.user_id }, 'secret')
       expect {
-        delete comment_url(comment), headers: valid_headers, as: :json
+        delete comment_url(comment),  headers: { "Authorization" => token }, as: :json
       }.to change(Comment, :count).by(-1)
     end
+
+    it "renders a Forbidden response if user is not authorized to delete the comment" do
+      comment = create(:comment)
+      unauthorized_user = create(:user)
+    
+      unauthorized_token = JWT.encode({ user_id: unauthorized_user.id }, 'secret')
+    
+      expect {
+        delete comment_url(comment), headers: { "Authorization" => "Bearer #{unauthorized_token}" }, as: :json
+      }.not_to change(Comment, :count)
+    
+      expect(response).to have_http_status(:forbidden)
+    end    
   end
 end
