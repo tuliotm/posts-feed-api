@@ -7,7 +7,7 @@ FactoryBot.define do
     password { FFaker::Internet.password }
 
     transient do
-      jwt_token { nil } # Inicializado como nil, você irá passar o valor nos testes
+      jwt_token { nil }
     end
 
     after(:build) do |user, evaluator|
