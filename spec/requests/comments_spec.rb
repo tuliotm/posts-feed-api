@@ -46,6 +46,21 @@ RSpec.describe "/comments", type: :request do
         }.to change(Comment, :count).by(1)
       end
 
+      it 'renders file attributes when file is attached' do
+        comment = create(:comment)
+  
+        serialized_comment = CommentSerializer.new(comment).serializable_hash
+        serialized_file = serialized_comment[:file]
+  
+        expect(serialized_file).to eq(
+          {
+            filename: 'empty_file.txt',
+            content_type: 'text/plain',
+            byte_size: 0
+          }
+        )
+      end
+
       it "renders a JSON response with the new comment" do
         comment = create(:comment)
         token = JWT.encode({ user_id: comment.user_id }, 'secret')
