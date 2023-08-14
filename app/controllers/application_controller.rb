@@ -27,10 +27,13 @@ class ApplicationController < ActionController::API
 
   def authorized_update_user
     decode_token = decode_token()
-    if decode_token
+    if decode_token && (decode_token[0]['user_id'] == params[:id].to_i)
       user_id = decode_token[0]['user_id']
       return nil unless user_id == params[:id].to_i
-      @user = User.find_by(id: user_id)
+    elsif decode_token
+      render json: {message: 'Você precisa estar logado'}, status: :unauthorized
+    else
+      render json: {message: 'Não permitido'}, status: :unprocessable_entity
     end
   end  
 
