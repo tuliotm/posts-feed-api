@@ -38,3 +38,6 @@ rails server
 ```
 
 **Access**: [http://localhost:3000](http://localhost:3000)
+
+## Get Postman collection:
+ - [Collection](https://universal-firefly-312043.postman.co/workspace/Posts-Feed-API~196b853c-615e-4c85-b132-39c67d74aae1/collection/25421369-361168d5-a046-4386-8fda-4142ae4faf74?action=share&creator=25421369)
